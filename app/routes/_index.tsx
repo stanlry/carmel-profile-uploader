@@ -63,8 +63,7 @@ export default function Index() {
     const formData = new FormData();
     const canvas = cropperRef.current?.getCanvas();
     if (canvas) {
-      const roundCanvas = roundEdges(canvas);
-      roundCanvas.toBlob((blob) => {
+      canvas.toBlob((blob) => {
         if (blob) {
           const filename = (image?.name.split('.').slice(0, -1) || "cropped") + ".png";
           const file = new File([blob], filename, { type: "image/png" });
@@ -131,10 +130,8 @@ export default function Index() {
             className="cropper"
             src={image && image.src}
             ref={cropperRef}
-            stencilComponent={CircleStencil}
             stencilProps={{
-              resizeable: false,
-              movable: false,
+              aspectRatio: 1,
             }} />
         </div>
       )}
