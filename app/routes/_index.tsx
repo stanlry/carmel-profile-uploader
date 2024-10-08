@@ -1,13 +1,10 @@
 import {
-  Form,
   useActionData,
   json,
-  Scripts,
-  ScrollRestoration,
   useSubmit,
   redirect,
 } from "@remix-run/react";
-import { useState, useRef, ChangeEvent, FormEvent } from "react";
+import { useState, useRef, ChangeEvent, useEffect } from "react";
 import {
   ActionFunction,
   unstable_parseMultipartFormData,
@@ -17,6 +14,7 @@ import {
 import { Cropper, CropperRef, CircleStencil } from "react-mobile-cropper";
 import "react-mobile-cropper/dist/style.css";
 import { Button } from "~/components/ui/button"
+import { roundEdges } from "~/lib/canvas";
 
 
 export const action: ActionFunction = async ({ request }) => {
@@ -53,43 +51,23 @@ interface Image {
   name: string;
 }
 
-function roundEdges(canvas: HTMLCanvasElement) {
-  const context = canvas.getContext("2d");
-  const { width, height } = canvas;
-  if (context) {
-    context.fillStyle = "#fff";
-    context.globalCompositeOperation = "destination-in";
-    context.beginPath();
-    context.scale(1, height / width);
-    context.arc(width / 2, width / 2, width / 2, 0, Math.PI * 2);
-    context.closePath();
-    context.fill();
-  }
-  return canvas;
-}
-
-
 export default function Index() {
   const actionData = useActionData();
   const inputRef = useRef<HTMLInputElement>(null);
   const [image, setImage] = useState<Image | null>(null);
 
   const cropperRef = useRef<CropperRef>(null);
-  const formRef = useRef<HTMLFormElement>(null);
   const submit = useSubmit();
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    console.log(event.currentTarget);
-    const formData = new FormData(event.currentTarget);
+  const handleSubmit = () => {
+    const formData = new FormData();
     const canvas = cropperRef.current?.getCanvas();
-    console.log(formData);
     if (canvas) {
       const roundCanvas = roundEdges(canvas);
       roundCanvas.toBlob((blob) => {
         if (blob) {
-          console.log(blob);
-          const file = new File([blob], image?.name || "cropped.png", { type: "image/png" });
+          const filename = (image?.name.split('.').slice(0, -1) || "cropped") + ".png";
+          const file = new File([blob], filename, { type: "image/png" });
           formData.set("croppedImage", file);
           submit(formData, {
             method: "post",
@@ -123,36 +101,54 @@ export default function Index() {
     event.target.value = '';
   }
 
-  return (
-      <div>
-        {image && (
-          <div className="upload-wrapper">
-            {image && (
-              <Cropper 
-                className="upload__cropper" 
-                src={image && image.src} 
-                ref={cropperRef} 
-                stencilComponent={CircleStencil} 
-                stencilProps={{
-                  resizeable: false,
-                  movable: false,
-                }} />
-            )}
-          </div>
-        )}
+  const closeCropper = () => {
+    setImage(null);
+  }
 
-        <Form ref={formRef} method="post" encType="multipart/form-data" onSubmit={handleSubmit}>
-          <input type="hidden" name="image" />
-          <input type="hidden" name="croppedImage" />
-          <Button className="button" onClick={onUpload}>
-            <input ref={inputRef} type="file" accept="image/*" onChange={onLoadImage} />
+  useEffect(() => {
+    // Revoke the object URL, to allow the garbage collector to destroy the uploaded before file
+    return () => {
+        if (image && image.src) {
+            URL.revokeObjectURL(image.src);
+        }
+    };
+}, [image]);
+
+  return (
+    <div className="container">
+      <nav className="bg-white shadow-md z-50 sticky">
+        <div className="flex items-center justify-between mx-auto p-3">
+          <button disabled={!image} onClick={closeCropper}>Back</button>
+          <img src="/logo1.png" alt="" width="40" height="40" />
+          <button disabled={!image} onClick={handleSubmit}>
+            Upload
+          </button>
+        </div>
+      </nav>
+      {image && (
+        <div className="main-wrapper">
+          <Cropper
+            className="cropper"
+            src={image && image.src}
+            ref={cropperRef}
+            stencilComponent={CircleStencil}
+            stencilProps={{
+              resizeable: false,
+              movable: false,
+            }} />
+        </div>
+      )}
+      {!image && (
+        <div className="welcome">
+          <span>Upload an image to get started</span>
+          <Button className="upload-button" onClick={onUpload}>
+            <input ref={inputRef} type="file" name="image" accept="image/*" onChange={onLoadImage} />
             Upload image
           </Button>
-          <Button disabled={!image} type="submit">Submit</Button>
-        </Form>
-        {actionData?.error && <p style={{ color: "red" }}>{actionData.error}</p>}
-        <ScrollRestoration />
-        <Scripts />
-      </div>
+        </div>
+      )}
+
+      {actionData?.error && <p style={{ color: "red" }}>{actionData.error}</p>}
+    </div>
   );
 }

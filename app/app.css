@@ -1,8 +1,31 @@
-.button input[type="file"] {
-  display: none;
-}
+@tailwind base; 
+@tailwind components;
 
-.upload-wrapper {
-  height: 100%;
-  width: 100%;
+@layer components {
+  .container .main-wrapper .cropper {
+    height: 92vh;
+  }
+
+  div.container nav div button[disabled] {
+    @apply text-white
+  }
+
+  div.container nav div button {
+    color: #047494;
+    @apply font-bold p-2;
+  }
+
+  .upload-button input[type="file"] {
+    @apply hidden
+  }
+
+  .welcome,
+  .success {
+    @apply flex flex-col items-center justify-center text-center;
+    height: 92vh;
+  }
+
+  .welcome span {
+    @apply text-2xl mb-4
+  }
 }
