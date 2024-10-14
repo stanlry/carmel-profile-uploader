@@ -11,10 +11,10 @@ import {
   unstable_composeUploadHandlers,
   unstable_createFileUploadHandler,
 } from "@remix-run/node";
-import { Cropper, CropperRef, CircleStencil } from "react-mobile-cropper";
+import { Cropper, CropperRef } from "react-mobile-cropper";
 import "react-mobile-cropper/dist/style.css";
 import { Button } from "~/components/ui/button"
-import { roundEdges } from "~/lib/canvas";
+import { ChevronLeft, Upload } from "lucide-react";
 
 
 export const action: ActionFunction = async ({ request }) => {
@@ -116,12 +116,14 @@ export default function Index() {
   return (
     <div className="container">
       <nav className="bg-white shadow-md z-50 sticky">
-        <div className="flex items-center justify-between mx-auto p-3">
-          <button disabled={!image} onClick={closeCropper}>Back</button>
+        <div className="flex items-center justify-between mx-auto p-2">
+          <Button variant="ghost" disabled={!image} onClick={closeCropper}>
+            <ChevronLeft className="mr-2 h-4 w-4" />Back
+          </Button>
           <img src="/logo1.png" alt="" width="40" height="40" />
-          <button disabled={!image} onClick={handleSubmit}>
-            Upload
-          </button>
+          <Button variant="ghost" disabled={!image} onClick={handleSubmit}>
+            Upload<Upload className="ml-2 h-4 w-4" />
+          </Button>
         </div>
       </nav>
       {image && (
