@@ -2,7 +2,6 @@ import {
   useActionData,
   json,
   useSubmit,
-  redirect,
 } from "@remix-run/react";
 import { useState, useRef, ChangeEvent, useEffect } from "react";
 import {
@@ -18,6 +17,9 @@ import { ChevronLeft, Upload } from "lucide-react";
 
 
 export const action: ActionFunction = async ({ request }) => {
+  const {searchParams} = new URL(request.url);
+  const location = searchParams.get("loc");
+
   const uploadHandler = unstable_composeUploadHandlers(
     unstable_createFileUploadHandler({
       // Limit file upload to images
@@ -25,7 +27,7 @@ export const action: ActionFunction = async ({ request }) => {
         return contentType.includes("image");
       },
       file: (file) => {
-        return file.filename;
+        return  [location, file.filename].join("_");
       },
       directory: "uploads/",
       // Limit the max size to 10MB
@@ -43,7 +45,7 @@ export const action: ActionFunction = async ({ request }) => {
     return json({ error: "No file uploaded" }, { status: 400 });
   }
 
-  return redirect("/success");
+  return json({ success: "File uploaded" }, { status: 200 });
 };
 
 interface Image {
@@ -72,6 +74,7 @@ export default function Index() {
             method: "post",
             encType: "multipart/form-data",
           });
+          setImage(null);
         }
       }, 'image/png');
     }
@@ -139,6 +142,8 @@ export default function Index() {
       )}
       {!image && (
         <div className="welcome">
+          {actionData?.error && <p style={{ color: "red" }}>{actionData.error}</p>}
+          {actionData?.success && <p style={{ color: "green" }}>{actionData.success}</p>}
           <span>Upload an image to get started</span>
           <Button className="upload-button" onClick={onUpload}>
             <input ref={inputRef} type="file" name="image" accept="image/*" onChange={onLoadImage} />
@@ -147,7 +152,6 @@ export default function Index() {
         </div>
       )}
 
-      {actionData?.error && <p style={{ color: "red" }}>{actionData.error}</p>}
     </div>
   );
 }
