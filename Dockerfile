@@ -45,4 +45,6 @@ COPY --from=production-deps /app/node_modules /app/node_modules
 COPY --from=build /app/build /app/build
 ADD . .
 
+EXPOSE 3000
+
 CMD ["npm", "run", "start"]
