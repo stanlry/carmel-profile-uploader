@@ -17,8 +17,8 @@ import { ChevronLeft, Upload } from "lucide-react";
 
 
 export const action: ActionFunction = async ({ request }) => {
-  const {searchParams} = new URL(request.url);
-  const location = searchParams.get("loc");
+  // const {searchParams} = new URL(request.url);
+  // const location = searchParams.get("loc");
 
   const uploadHandler = unstable_composeUploadHandlers(
     unstable_createFileUploadHandler({
@@ -27,7 +27,9 @@ export const action: ActionFunction = async ({ request }) => {
         return contentType.includes("image");
       },
       file: (file) => {
-        return  [location, file.filename].join("_");
+        const currentDate = new Date()
+        const dateStr = currentDate.getFullYear().toString() + currentDate.getMonth().toString() + currentDate.getDate().toString() + currentDate.getHours() + currentDate.getMinutes() + currentDate.getSeconds()
+        return  [dateStr, file.filename].join("_");
       },
       directory: "uploads/",
       // Limit the max size to 10MB
