@@ -3,7 +3,7 @@
 
 @layer components {
   .container .main-wrapper .cropper {
-    height: 92vh;
+    height: 92dvh;
   }
 
   div.container nav div button[disabled] {
