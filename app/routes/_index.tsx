@@ -14,6 +14,7 @@ import { Cropper, CropperRef } from "react-mobile-cropper";
 import "react-mobile-cropper/dist/style.css";
 import { Button } from "~/components/ui/button"
 import { ChevronLeft, Upload } from "lucide-react";
+import { resizeCanvas } from "~/lib/utils";
 
 
 export const action: ActionFunction = async ({ request }) => {
@@ -70,7 +71,10 @@ export default function Index() {
     const formData = new FormData();
     const canvas = cropperRef.current?.getCanvas();
     if (canvas) {
-      canvas.toBlob((blob) => {
+      // reisze the image to 300x300
+      const newCanvas = resizeCanvas(canvas, 300, 300);
+
+      newCanvas.toBlob((blob) => {
         if (blob) {
           const filename = (image?.name.split('.').slice(0, -1) || "cropped") + ".png";
           const file = new File([blob], filename, { type: "image/png" });
@@ -140,6 +144,7 @@ export default function Index() {
             className="cropper"
             src={image && image.src}
             ref={cropperRef}
+            defaultSize={() => ({width: 300, height: 300})}
             stencilProps={{
               aspectRatio: 1,
             }} />
@@ -149,7 +154,7 @@ export default function Index() {
         <div className="welcome">
           {actionData?.error && <p style={{ color: "red" }}>{actionData.error}</p>}
           {actionData?.success && <p style={{ color: "green" }}>{actionData.success}</p>}
-          <span>Upload an image to get started</span>
+          <span className="p-5">Upload or Take a picture to share with us!</span>
           <Button className="upload-button" onClick={onUpload}>
             <input ref={inputRef} type="file" name="image" accept="image/*" onChange={onLoadImage} />
             Upload image
