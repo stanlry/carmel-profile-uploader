@@ -33,18 +33,21 @@ export const action: ActionFunction = async ({ request }) => {
       },
       directory: "uploads/",
       // Limit the max size to 10MB
-      maxPartSize: 10 * 1024 * 1024,
+      maxPartSize: 20 * 1024 * 1024,
     }),
   )
 
-  const formData = await unstable_parseMultipartFormData(request, uploadHandler);
+  try {
+    const formData = await unstable_parseMultipartFormData(request, uploadHandler);
 
-  const croppedImg = formData.get("croppedImage");
+    const croppedImg = formData.get("croppedImage");
 
-  console.log(croppedImg);
-
-  if (!croppedImg) {
-    return json({ error: "No file uploaded" }, { status: 400 });
+    if (!croppedImg) {
+      return json({ error: "No file uploaded" }, { status: 400 });
+    }
+  } catch (error) {
+    console.error(error);
+    return json({ error: "Image too large, cannot exceed 10MB" }, { status: 400 });
   }
 
   return json({ success: "File uploaded" }, { status: 200 });
