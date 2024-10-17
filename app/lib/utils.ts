@@ -19,3 +19,12 @@ export function resizeCanvas(canvas: HTMLCanvasElement, width: number, height: n
   }
   return newCanvas;
 }
+
+export function dateToCompactString(date: Date) : string {
+  return date.getFullYear().toString() 
+  + date.getMonth().toString().padStart(2, '0') + 
+  date.getDate().toString().padStart(2, '0') + 
+  date.getHours().toString().padStart(2, '0') + 
+  date.getMinutes().toString().padStart(2, '0') + 
+  date.getSeconds().toString().padStart(2, '0');
+}

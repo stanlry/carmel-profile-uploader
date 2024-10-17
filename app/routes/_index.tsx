@@ -14,6 +14,7 @@ import { Cropper, CropperRef } from "react-mobile-cropper";
 import "react-mobile-cropper/dist/style.css";
 import { Button } from "~/components/ui/button"
 import { ChevronLeft, Upload } from "lucide-react";
+import { dateToCompactString } from "~/lib/utils";
 
 
 export const action: ActionFunction = async ({ request }) => {
@@ -27,9 +28,8 @@ export const action: ActionFunction = async ({ request }) => {
         return contentType.includes("image");
       },
       file: (file) => {
-        const currentDate = new Date()
-        const dateStr = currentDate.getFullYear().toString() + currentDate.getMonth().toString().padStart(2, '0') + currentDate.getDate().toString().padStart(2, '0') + currentDate.getHours() + currentDate.getMinutes() + currentDate.getSeconds()
-        return  [dateStr, file.filename].join("_");
+        const currentDate = dateToCompactString(new Date());
+        return  [currentDate, file.filename].join("_");
       },
       directory: "uploads/",
       // Limit the max size to 10MB
