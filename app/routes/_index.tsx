@@ -14,7 +14,6 @@ import { Cropper, CropperRef } from "react-mobile-cropper";
 import "react-mobile-cropper/dist/style.css";
 import { Button } from "~/components/ui/button"
 import { ChevronLeft, Upload } from "lucide-react";
-import { resizeCanvas } from "~/lib/utils";
 
 
 export const action: ActionFunction = async ({ request }) => {
@@ -69,12 +68,12 @@ export default function Index() {
 
   const handleSubmit = () => {
     const formData = new FormData();
-    const canvas = cropperRef.current?.getCanvas();
+    const canvas = cropperRef.current?.getCanvas({
+      maxWidth: 300,
+      maxHeight: 300,
+    });
     if (canvas) {
-      // reisze the image to 300x300
-      const newCanvas = resizeCanvas(canvas, 300, 300);
-
-      newCanvas.toBlob((blob) => {
+      canvas.toBlob((blob) => {
         if (blob) {
           const filename = (image?.name.split('.').slice(0, -1) || "cropped") + ".png";
           const file = new File([blob], filename, { type: "image/png" });
