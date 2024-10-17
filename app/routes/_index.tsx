@@ -28,7 +28,7 @@ export const action: ActionFunction = async ({ request }) => {
       },
       file: (file) => {
         const currentDate = new Date()
-        const dateStr = currentDate.getFullYear().toString() + currentDate.getMonth().toString() + currentDate.getDate().toString() + currentDate.getHours() + currentDate.getMinutes() + currentDate.getSeconds()
+        const dateStr = currentDate.getFullYear().toString() + currentDate.getMonth().toString().padStart(2, '0') + currentDate.getDate().toString().padStart(2, '0') + currentDate.getHours() + currentDate.getMinutes() + currentDate.getSeconds()
         return  [dateStr, file.filename].join("_");
       },
       directory: "uploads/",
